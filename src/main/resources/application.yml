@@ -1,0 +1,23 @@
+#Data migration configuration
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+      default_schema: wechat
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    baseline-version: 1
+    table: schema_history
+    sqlMigrationPrefix: V
+    sqlMigrationSeparator: __
+    locations: classpath:/db/migration
+    sqlMigrationTimestampFormat: yyyyMMddHHmm
+    repair: true
+    test: false
+    schemas: wechat
