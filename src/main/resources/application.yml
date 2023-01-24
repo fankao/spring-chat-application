@@ -1,0 +1,36 @@
+server:
+  port: 8090
+  servlet:
+    context-path: /api
+#Data migration configuration
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      default_schema: wechat
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      schema: wechat
+  flyway:
+    baseline-version: 1
+    table: schema_history
+    sqlMigrationPrefix: V
+    sqlMigrationSeparator: __
+    locations: classpath:/db/migration
+    sqlMigrationTimestampFormat: yyyyMMddHHmm
+    repair: true
+    test: false
+    schemas: wechat
+# security integration
+# App Properties
+security:
+  app:
+    jwtSecret: bezKoderSecretKey
+    jwtExpirationMs: 6000000
+    jwtRefreshExpirationMs: 12000000
