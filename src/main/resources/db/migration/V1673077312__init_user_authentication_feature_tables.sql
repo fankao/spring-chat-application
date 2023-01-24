@@ -14,20 +14,29 @@ CREATE TABLE roles
 );
 CREATE TABLE role_permissions
 (
-    id            bigserial PRIMARY KEY,
-    role_id       INTEGER NOT NULL,
-    permission_id INTEGER NOT NULL,
+    role_id       bigserial NOT NULL,
+    permission_id bigserial NOT NULL,
     created_at timestamp,
     updated_at timestamp,
+    PRIMARY KEY (role_id,permission_id),
     FOREIGN KEY (role_id) REFERENCES roles (id),
     FOREIGN KEY (permission_id) REFERENCES permissions (id)
 );
 CREATE TABLE users
 (
     id       bigserial PRIMARY KEY,
-    email    VARCHAR(255) NOT NULL,
-    role_id  INTEGER      NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    user_name VARCHAR(255) UNIQUE,
+    email    VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
     created_at timestamp,
-    updated_at timestamp,
-    FOREIGN KEY (role_id) REFERENCES roles (id)
+    updated_at timestamp
+);
+CREATE TABLE user_roles (
+    user_id bigserial NOT NULL,
+    role_id bigserial NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (role_id) REFERENCES roles(id)
 );

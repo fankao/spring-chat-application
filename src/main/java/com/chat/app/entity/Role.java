@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "role")
+@Table(name = "roles")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,9 +17,6 @@ import java.util.Set;
 public class Role extends BaseEntity {
     @Column(name = "name")
     private String name;
-
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "role")
-    private Set<User> users;
     @ManyToMany
     @JoinTable(
             name = "role_permissions",

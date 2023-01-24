@@ -22,7 +22,11 @@ VALUES (2, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
        (2, 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
        (1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-
 -- Insert Admin credential
-INSERT INTO users(email, role_id)
-VALUES ('admin@chatapp.com',2)
+INSERT INTO users(first_name,last_name,user_name,password,email)
+VALUES ('App','Admin','admin','$2a$10$gXFVdIu2ZOfB.shT4sSsieFrSUqFDDyKxmVr9IXzzZMvWCyUTzkP6','admin@chatapp.com'); --pass: admin1234
+
+INSERT INTO user_roles(user_id,role_id)
+VALUES (1,2);
+
+
