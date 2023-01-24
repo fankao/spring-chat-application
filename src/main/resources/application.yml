@@ -32,5 +32,5 @@ spring:
 security:
   app:
     jwtSecret: bezKoderSecretKey
-    jwtExpirationMs: 60000
-    jwtRefreshExpirationMs: 120000
+    jwtExpirationMs: 6000000
+    jwtRefreshExpirationMs: 12000000
