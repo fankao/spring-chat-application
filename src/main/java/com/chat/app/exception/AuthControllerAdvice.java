@@ -1,9 +1,10 @@
+/*
 package com.chat.app.exception;
 
-import com.chat.app.exception.dto.BadRequestException;
-import com.chat.app.exception.dto.ErrorMessage;
-import com.chat.app.exception.dto.NotFoundException;
-import com.chat.app.exception.dto.TokenRefreshException;
+import com.chat.app.exception.BadRequestException;
+import com.chat.app.exception.ErrorMessage;
+import com.chat.app.exception.NotFoundException;
+import com.chat.app.exception.TokenRefreshException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -44,3 +45,4 @@ public class AuthControllerAdvice {
                 request.getDescription(false));
     }
 }
+*/

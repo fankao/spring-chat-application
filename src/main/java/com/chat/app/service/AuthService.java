@@ -1,7 +1,7 @@
 package com.chat.app.service;
 
-import com.chat.app.exception.dto.BadRequestException;
-import com.chat.app.exception.dto.NotFoundException;
+import com.chat.app.exception.BadRequestException;
+import com.chat.app.exception.NotFoundException;
 import com.chat.app.security.payload.request.*;
 import com.chat.app.security.payload.response.JwtResponse;
 import com.chat.app.security.payload.response.MessageResponse;

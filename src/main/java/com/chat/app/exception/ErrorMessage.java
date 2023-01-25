@@ -1,4 +1,4 @@
-package com.chat.app.exception.dto;
+package com.chat.app.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

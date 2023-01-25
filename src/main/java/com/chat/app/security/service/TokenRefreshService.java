@@ -1,8 +1,8 @@
 package com.chat.app.security.service;
 
 import com.chat.app.entity.RefreshToken;
-import com.chat.app.exception.dto.BadRequestException;
-import com.chat.app.exception.dto.NotFoundException;
+import com.chat.app.exception.BadRequestException;
+import com.chat.app.exception.NotFoundException;
 import com.chat.app.security.payload.request.TokenRefreshRequest;
 import com.chat.app.security.payload.response.TokenRefreshResponse;
 

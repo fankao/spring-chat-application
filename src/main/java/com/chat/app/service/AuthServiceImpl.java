@@ -2,8 +2,10 @@ package com.chat.app.service;
 
 import com.chat.app.entity.Role;
 import com.chat.app.entity.User;
-import com.chat.app.exception.dto.BadRequestException;
-import com.chat.app.exception.dto.NotFoundException;
+import com.chat.app.exception.ApplicationInternalError;
+import com.chat.app.exception.BadAuthException;
+import com.chat.app.exception.BadRequestException;
+import com.chat.app.exception.NotFoundException;
 import com.chat.app.repository.RoleRepository;
 import com.chat.app.repository.UserRepository;
 import com.chat.app.security.dto.UserDetailsImpl;
@@ -15,6 +17,7 @@ import com.chat.app.security.payload.response.TokenRefreshResponse;
 import com.chat.app.security.service.TokenRefreshService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -63,9 +66,9 @@ public class AuthServiceImpl implements AuthService {
                     .refreshToken(tokenRefreshService.createRefreshToken(userDetails.getId()).getToken())
                     .type("Bearer")
                     .build();
-        } catch (AuthenticationException | NotFoundException e) {
-            log.error("LOGIN ERROR: {}", e.getMessage());
-            throw new RuntimeException(e);
+        } catch (AuthenticationException e) {
+            log.error("LOGIN ERROR: {}",e.getMessage());
+            throw new BadAuthException(e.getMessage(),e.getCause());
         }
     }
 
@@ -92,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
     public MessageResponse changePassword(ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findByUsernameOrEmail(changePasswordRequest.getUserName())
                 .orElseThrow(() -> new NotFoundException("Username or email is not found"));
-        if(changePasswordRequest.getNewPassword().equalsIgnoreCase(changePasswordRequest.getOldPassword())){
+        if (changePasswordRequest.getNewPassword().equalsIgnoreCase(changePasswordRequest.getOldPassword())) {
             throw new BadRequestException("New password and old password should be different");
         }
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
@@ -115,7 +118,7 @@ public class AuthServiceImpl implements AuthService {
         Set<Role> roles = new HashSet<>();
         if (CollectionUtils.isEmpty(strRoles)) {
             Role userRole = roleRepository.findByName("USER")
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                    .orElseThrow(() -> new NotFoundException("Error: Role is not found."));
             roles.add(userRole);
         } else {
             convertStringToRole(roles, strRoles);
@@ -128,12 +131,12 @@ public class AuthServiceImpl implements AuthService {
             switch (role) {
                 case "admin":
                     Role adminRole = roleRepository.findByName("ADMIN")
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                            .orElseThrow(() -> new NotFoundException("Error: Role is not found."));
                     roles.add(adminRole);
                     break;
                 default:
                     Role userRole = roleRepository.findByName("USER")
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                            .orElseThrow(() -> new NotFoundException("Error: Role is not found."));
                     roles.add(userRole);
                     break;
             }
