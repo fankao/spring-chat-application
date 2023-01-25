@@ -72,6 +72,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <!--Error handler -->
+        <dependency>
+            <groupId>io.github.wimdeblauwe</groupId>
+            <artifactId>error-handling-spring-boot-starter</artifactId>
+            <version>3.3.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

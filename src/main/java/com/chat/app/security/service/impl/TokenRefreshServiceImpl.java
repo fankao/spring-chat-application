@@ -2,9 +2,10 @@ package com.chat.app.security.service.impl;
 
 import com.chat.app.entity.RefreshToken;
 import com.chat.app.entity.User;
-import com.chat.app.exception.dto.BadRequestException;
-import com.chat.app.exception.dto.NotFoundException;
-import com.chat.app.exception.dto.TokenRefreshException;
+import com.chat.app.exception.ApplicationInternalError;
+import com.chat.app.exception.BadRequestException;
+import com.chat.app.exception.NotFoundException;
+import com.chat.app.exception.TokenRefreshException;
 import com.chat.app.repository.RefreshTokenRepository;
 import com.chat.app.repository.UserRepository;
 import com.chat.app.security.jwt.JwtTokenProvider;
@@ -13,8 +14,8 @@ import com.chat.app.security.payload.response.TokenRefreshResponse;
 import com.chat.app.security.service.TokenRefreshService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -32,20 +33,20 @@ public class TokenRefreshServiceImpl implements TokenRefreshService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Transactional
+    @Transactional(rollbackOn = DataAccessException.class)
     @Override
     public RefreshToken createRefreshToken(Long userId) throws NotFoundException {
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NotFoundException("Username or email is not found"));
-            RefreshToken refreshToken =  new RefreshToken();
+            RefreshToken refreshToken = new RefreshToken();
             refreshToken.setToken(UUID.randomUUID().toString());
             refreshToken.setUser(user);
             refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
             return refreshTokenRepository.save(refreshToken);
-        } catch (NotFoundException e) {
+        } catch (DataAccessException e) {
             log.error("CREATE REFRESH TOKEN ERROR: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new ApplicationInternalError(e.getMessage());
         }
     }
 
@@ -55,7 +56,7 @@ public class TokenRefreshServiceImpl implements TokenRefreshService {
             refreshTokenRepository.deleteByUserId(userId);
             return true;
         } catch (Exception e) {
-            log.error("DELETE USER ERROR {}",e.getMessage());
+            log.error("DELETE USER ERROR {}", e.getMessage());
             return false;
         }
     }
@@ -73,21 +74,16 @@ public class TokenRefreshServiceImpl implements TokenRefreshService {
     @Transactional
     @Override
     public TokenRefreshResponse refreshToken(TokenRefreshRequest tokenRefreshRequest) throws BadRequestException {
-        try {
-            String refreshToken = tokenRefreshRequest.getRefreshToken();
-            TokenRefreshResponse tokenRefreshResponse = refreshTokenRepository.findByToken(refreshToken)
-                    .map(token -> verifyExpiration(token))
-                    .map(RefreshToken::getUser)
-                    .map(user -> processTokenRefreshResponse(user))
-                    .orElseThrow(() -> new TokenRefreshException(refreshToken, "Refresh token is not in database!"));
-            if(Objects.isNull(tokenRefreshResponse)){
-                throw new BadRequestException("Cannot refresher token. Please sign in again!");
-            }
-            return tokenRefreshResponse;
-        } catch (TokenRefreshException | BadRequestException e) {
-            log.error("REFRESH TOKEN ERROR: {}",e.getMessage());
-            throw new RuntimeException(e);
+        String refreshToken = tokenRefreshRequest.getRefreshToken();
+        TokenRefreshResponse tokenRefreshResponse = refreshTokenRepository.findByToken(refreshToken)
+                .map(token -> verifyExpiration(token))
+                .map(RefreshToken::getUser)
+                .map(user -> processTokenRefreshResponse(user))
+                .orElseThrow(() -> new TokenRefreshException(refreshToken, "Refresh token is not in database!"));
+        if (Objects.isNull(tokenRefreshResponse)) {
+            throw new BadRequestException("Cannot refresher token. Please sign in again!");
         }
+        return tokenRefreshResponse;
     }
 
     private TokenRefreshResponse processTokenRefreshResponse(User user) {
